@@ -28,6 +28,7 @@ podTemplate(yaml: '''
 	   stage('Rollover Updates') {
 		sh '''
         echo 'Deploy Rolling Updates for Calculator. Replica count is 3'
+        ./kubectl apply -f calculator.yaml -n staging
         sleep 20
 		    '''
        }
