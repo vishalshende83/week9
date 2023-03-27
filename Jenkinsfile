@@ -25,15 +25,7 @@ podTemplate(yaml: '''
         ./kubectl apply -f hazelcast.yaml -n staging
         '''
        } 
-
-       stage('CleanUp') {
-		    sh '''
-        ./kubectl delete deployment calculator-deployment  -n staging
-        ./kubectl delete deployment hazelcast -n staging
-        '''
-       }
      }
     }        
-
   }
 } 
