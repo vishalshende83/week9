@@ -21,8 +21,7 @@ podTemplate(yaml: '''
         echo 'Start Calculator'
 				curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         chmod +x ./kubectl
-        ./kubectl apply -f calculator.yaml -n staging
-        ./kubectl apply -f hazelcast.yaml -n staging
+        ./kubectl get pods -n staging
         '''
        } 
      }
