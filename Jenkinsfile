@@ -14,7 +14,7 @@ podTemplate(yaml: '''
   node(POD_LABEL) {
 
   stage('Start a gradle project') {
-      git branch: 'main', url: 'https://github.com/vishalshende83/week9.git'
+      git branch: 'imageUpdate', url: 'https://github.com/vishalshende83/week9.git'
       container('gradle') {
         stage('Test Addition and Division for image: dlambrig/hello-kaniko:0.5') {
 		sh '''
