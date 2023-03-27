@@ -16,15 +16,60 @@ podTemplate(yaml: '''
   stage('Start a gradle project') {
       git branch: 'main', url: 'https://github.com/vishalshende83/week9.git'
       container('gradle') {
-        stage('Start Calculator') {
-		    sh '''
-        echo 'Start Calculator'
-				curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        stage('Test Addition and Division for image: dlambrig/hello-kaniko:0.5') {
+		sh '''
+        echo 'Addition should pass & Division should fail'
+		curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         chmod +x ./kubectl
-        ./kubectl apply -f calculator.yaml -n staging
-        ./kubectl apply -f hazelcast.yaml -n staging
         '''
+		try {
+              sh '''
+              test $(curl calculator-service.staging.svc.cluster.local:8080/sum?a=4\\&b=2) -eq 6 && echo 'pass' || echo 'fail'
+			  test $(curl calculator-service.staging.svc.cluster.local:8080/sum?a=4\\&b=4) -eq 8 && echo 'pass' || echo 'fail'
+              '''
+            }
+            catch (Exception e) {
+               echo "Test for addition failed"
+            }
+		try {
+              sh '''
+              test $(curl calculator-service.staging.svc.cluster.local:8080/div?a=4\\&b=2) -eq 2 && echo 'pass' || echo 'fail'
+			  test $(curl calculator-service.staging.svc.cluster.local:8080/div?a=8\\&b=2) -eq 4 && echo 'pass' || echo 'fail'
+              '''
+            }
+            catch (Exception e) {
+               echo "Test for division failed"
+            }
        } 
+	   
+	   stage('Deploy calculator') {
+		sh '''
+        echo 'Deploying Calculator for image: dlambrig/week8:1.1'
+		./kubectl apply -f calculator.yaml -n staging
+		sleep 30
+        '''
+       }
+	   
+	   stage('Test Addition and Division for image: dlambrig/week8:1.1') {
+		try {
+              sh '''
+              test $(curl calculator-service.staging.svc.cluster.local:8080/sum?a=4\\&b=2) -eq 6 && echo 'pass' || echo 'fail'
+			  test $(curl calculator-service.staging.svc.cluster.local:8080/sum?a=4\\&b=4) -eq 8 && echo 'pass' || echo 'fail'
+              '''
+            }
+            catch (Exception e) {
+               echo "Test for addition failed"
+            }
+		try {
+              sh '''
+              test $(curl calculator-service.staging.svc.cluster.local:8080/div?a=4\\&b=2) -eq 2 && echo 'pass' || echo 'fail'
+			  test $(curl calculator-service.staging.svc.cluster.local:8080/div?a=8\\&b=2) -eq 4 && echo 'pass' || echo 'fail'
+              '''
+            }
+            catch (Exception e) {
+               echo "Test for division failed"
+            }
+       }
      }
     }        
   }
