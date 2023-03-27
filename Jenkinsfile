@@ -17,14 +17,21 @@ podTemplate(yaml: '''
       git branch: 'main', url: 'https://github.com/vishalshende83/week9.git'
       container('gradle') {
         stage('Start Calculator') {
-		sh '''
-                echo 'Start Calculator'
+		    sh '''
+        echo 'Start Calculator'
 				curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                chmod +x ./kubectl
-                ./kubectl apply -f calculator.yaml -n staging
-                ./kubectl apply -f hazelcast.yaml -n staging
-         '''
+        chmod +x ./kubectl
+        ./kubectl apply -f calculator.yaml -n staging
+        ./kubectl apply -f hazelcast.yaml -n staging
+        '''
        } 
+
+       stage('CleanUp') {
+		    sh '''
+        ./kubectl delete deployment calculator-deployment  -n staging
+        ./kubectl delete deployment hazelcast -n staging
+        '''
+       }
      }
     }        
 
